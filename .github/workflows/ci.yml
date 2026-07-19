@@ -1,4 +1,4 @@
-name: Continuous Integration & Deployment
+name: Continuous Integration
 
 on:
   push:
@@ -13,8 +13,8 @@ permissions:
   contents: write
 
 jobs:
-  ci-cd:
-    name: CI/CD
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -101,3 +101,4 @@ jobs:
             ${{ env.ZIP_FILE }}
           fail_on_unmatched_files: true
           make_latest: true
+          token: ${{ secrets.PUBLISH_RELEASE_PAT }}

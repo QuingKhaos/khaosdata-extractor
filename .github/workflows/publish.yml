@@ -1,0 +1,33 @@
+name: Publish to mod portal
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout ${{ github.ref_name }}
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download release asset
+        uses: dsaltares/fetch-gh-release-asset@1.1.2
+        with:
+          version: tags/${{ github.ref_name }}
+          file: "khaosdata-extractor_${{ github.event.release.name }}.zip"
+
+      - name: Publish to mod portal
+        uses: TheBrutalX/factorio-mod-uploader-action@v2
+        env:
+          PROCESS_CREATE_ON_PORTAL: "false"
+        with:
+          action: upload
+          mod-name: khaosdata-extractor
+          mod-folder: ${{ github.workspace }}
+          mod-version: ${{ github.event.release.name }}
+          zip-file: "${{ github.workspace }}/khaosdata-extractor_${{ github.event.release.name }}.zip"
+          factorio-api-key: ${{ secrets.FACTORIO_API_KEY }}
