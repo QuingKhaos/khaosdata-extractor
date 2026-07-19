@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - "1.x"
-      #- "2.x"
-  #schedule:
-  #  - cron: '*/5 * * * *'
+      - "2.x"
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -24,10 +24,10 @@ jobs:
             build_version: "1"
             factorio_version: "2.0"
             recycler_dependency: ''
-          #- branch: "2.x"
-          #  build_version: "2"
-          #  factorio_version: "2.1"
-          #  recycler_dependency: '"? recycler",'
+          - branch: "2.x"
+            build_version: "2"
+            factorio_version: "2.1"
+            recycler_dependency: '"? recycler",'
 
     steps:
       - name: Checkout ${{ matrix.versions.branch }}
