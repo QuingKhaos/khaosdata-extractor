@@ -36,7 +36,7 @@ script.on_init(function()
   write_metadata()
 
   storage.delayed_chat_messages = {}
-  table.insert(storage.delayed_chat_messages, "DATA GENERATION FINISHED. You can quit the game now.")
+  table.insert(storage.delayed_chat_messages, "DATA EXTRACTION FINISHED. You can quit the game now.")
 
   if storage.delayed_chat_messages ~= nil and next(storage.delayed_chat_messages) ~= nil then
     create_delayed_chat()
@@ -46,7 +46,7 @@ end)
 script.on_load(function()
   write_metadata()
 
-  table.insert(storage.delayed_chat_messages, "DATA GENERATION FINISHED. You can quit the game now.")
+  table.insert(storage.delayed_chat_messages, "DATA EXTRACTION FINISHED. You can quit the game now.")
 
   if storage.delayed_chat_messages ~= nil and next(storage.delayed_chat_messages) ~= nil then
     create_delayed_chat()

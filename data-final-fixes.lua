@@ -16,3 +16,17 @@ data_raw_extractor(data.raw)
 mods_extractor(mods)
 settings_extractor(settings --[[@as data.Settings]])
 feature_flags_extractor(feature_flags)
+
+helpers.write_file("khaosdata-extractor/.emmyrc.json", [[
+{
+    "$schema": "https://raw.githubusercontent.com/EmmyLuaLs/emmylua-analyzer-rust/refs/heads/main/crates/emmylua_code_analysis/resources/schema.json",
+    "workspace": {
+        "moduleMap": [
+            {
+                "pattern": "^(.*)$",
+                "replace": "___KHAOSDATA___.$1"
+            }
+        ]
+    }
+}
+]])
