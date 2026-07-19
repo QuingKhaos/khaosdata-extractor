@@ -17,6 +17,7 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         versions:
@@ -31,16 +32,19 @@ jobs:
 
     steps:
       - name: Checkout ${{ matrix.versions.branch }}
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == matrix.versions.branch)
         uses: actions/checkout@v7
         with:
           ref: ${{ matrix.versions.branch }}
 
       - id: download-mods-list
         name: Download mods list
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == matrix.versions.branch)
         run: response=$(curl --silent --output mods.json --write-out "%{http_code}" "https://mods.factorio.com/api/mods?version=${{ matrix.versions.factorio_version }}&page_size=max"); echo "response=$response" >> $GITHUB_OUTPUT
 
       - id: current-version
         name: Get current version from info.json
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == matrix.versions.branch)
         run: echo "current_version=$(jq -r '.version' info.json)" >> $GITHUB_OUTPUT
 
       - id: update-dependencies
@@ -61,7 +65,7 @@ jobs:
 
       - id: bump-version
         name: Bump version
-        if: steps.commit-dependencies.outputs.changes_detected == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        if: steps.commit-dependencies.outputs.changes_detected == 'true' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name == matrix.versions.branch)
         run: |
           new_version="${{ matrix.versions.build_version }}$(date +%Y.%m%d.%H%M)"
           sed -i "s/\"version\": \"\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)\"/\"version\": \"$new_version\"/" info.json
