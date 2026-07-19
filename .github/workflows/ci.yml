@@ -96,7 +96,7 @@ jobs:
         with:
           name: ${{ steps.bump-version.outputs.new_version }}
           tag_name: v${{ steps.bump-version.outputs.new_version }}
-          target_commitish: ${{ steps.commit-dependencies.outputs.commit_hash }}
+          target_commitish: ${{ steps.bump-version.outputs.commit_hash }}
           files: |
             ${{ env.ZIP_FILE }}
           fail_on_unmatched_files: true
