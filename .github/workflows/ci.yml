@@ -27,7 +27,7 @@ jobs:
           - branch: "2.x"
             build_version: "2"
             factorio_version: "2.1"
-            recycler_dependency: '"? recycler",'
+            recycler_dependency: '\"? recycler\",'
 
     steps:
       - name: Checkout ${{ matrix.versions.branch }}
@@ -47,7 +47,7 @@ jobs:
         name: Update dependencies in info.json
         if: steps.download-mods-list.outputs.response == '200'
         run: |
-          jq "{name: \"khaosdata-extractor\", title: \"QuingKhaos' Data Extractor\", description: \"Extracts data from Factorio for further validation, mocking, testing and more.\", author: \"QuingKhaos\", homepage: \"https://discord.gg/SYmkaDjFCt\", version: \"${{ steps.current-version.outputs.current_version }}\", factorio_version: \"${{ matrix.versions.factorio_version }}\", dependencies: [\"base\", \"? elevated-rails\", ${{ matrix.versions.recycler_dependency }} \"? quality\", \"? space-age\", (.results | sort_by(.name)[] | \"? \" + .name)], package: {ignore: [\"**/*.svg\", \"**/*.xcf\"]}}" mods.json > info.json
+          jq "{name: \"khaosdata-extractor\", title: \"QuingKhaos' Data Extractor\", description: \"Extracts data from Factorio for further validation, mocking, testing and more.\", author: \"QuingKhaos\", homepage: \"https://discord.gg/SYmkaDjFCt\", version: \"${{ steps.current-version.outputs.current_version }}\", factorio_version: \"${{ matrix.versions.factorio_version }}\", dependencies: [\"base\", \"? elevated-rails\", ${{ matrix.versions.recycler_dependency }} \"? quality\", \"? space-age\", (.results | sort_by(.name)[] | \"? \" + .name)], package: {ignore: [\"mod_info.yml\", \"**/*.svg\", \"**/*.xcf\"]}}" mods.json > info.json
 
       - id: commit-dependencies
         name: Commit updated dependencies
