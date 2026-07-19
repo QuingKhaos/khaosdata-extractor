@@ -78,3 +78,26 @@ jobs:
           file_pattern: |
             info.json
             changelog.txt
+
+      - id: create-mod-package
+        name: Create mod package
+        if: steps.bump-version.outputs.new_version != ''
+        uses: TheBrutalX/factorio-mod-uploader-action@v2
+        with:
+          action: compress
+          mod-name: khaosdata-extractor
+          mod-folder: ${{ github.workspace }}
+          mod-version: ${{ steps.bump-version.outputs.new_version }}
+          auto-update-version: false
+
+      - name: Release mod package
+        if: env.ZIP_FILE != ''
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ steps.bump-version.outputs.new_version }}
+          tag_name: v${{ steps.bump-version.outputs.new_version }}
+          target_commitish: ${{ steps.commit-dependencies.outputs.commit_hash }}
+          files: |
+            ${{ env.ZIP_FILE }}
+          fail_on_unmatched_files: true
+          make_latest: true

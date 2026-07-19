@@ -1,0 +1,8 @@
+mod_info:
+  title: "QuingKhaos' Data Extractor"
+  summary: "Extracts data from Factorio for further validation, mocking, testing and more."
+  description_file: README.md
+  attach_source_link: true
+  license: gnugplv3
+  category: internal
+  tags: []
