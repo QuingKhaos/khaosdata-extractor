@@ -9123,6 +9123,7 @@
   ],
   "package": {
     "ignore": [
+      "mod_info.yml",
       "**/*.svg",
       "**/*.xcf"
     ]
