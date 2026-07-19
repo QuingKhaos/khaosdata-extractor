@@ -39,13 +39,18 @@ jobs:
         name: Download mods list
         run: response=$(curl --silent --output mods.json --write-out "%{http_code}" "https://mods.factorio.com/api/mods?version=${{ matrix.versions.factorio_version }}&page_size=max"); echo "response=$response" >> $GITHUB_OUTPUT
 
-      - id: generate-mod-info
-        name: Generate info.json
+      - id: current-version
+        name: Get current version from info.json
+        run: echo "current_version=$(jq -r '.version' info.json)" >> $GITHUB_OUTPUT
+
+      - id: update-dependencies
+        name: Update dependencies in info.json
         if: steps.download-mods-list.outputs.response == '200'
         run: |
-          jq "{name: \"khaosdata-extractor\", title: \"QuingKhaos' Data Extractor\", description: \"Extracts data from Factorio for further validation, mocking, testing and more.\", author: \"QuingKhaos\", homepage: \"https://discord.gg/SYmkaDjFCt\", version: (\"${{ matrix.versions.build_version }}\" + (now | strftime(\"%Y.%m%d.%H%M\"))), factorio_version: \"${{ matrix.versions.factorio_version }}\", dependencies: [\"base\", \"? elevated-rails\", ${{ matrix.versions.recycler_dependency }} \"? quality\", \"? space-age\", (.results | sort_by(.name)[] | \"? \" + .name)], package: {ignore: [\"**/*.svg\", \"**/*.xcf\"]}}" mods.json > info.json
+          jq "{name: \"khaosdata-extractor\", title: \"QuingKhaos' Data Extractor\", description: \"Extracts data from Factorio for further validation, mocking, testing and more.\", author: \"QuingKhaos\", homepage: \"https://discord.gg/SYmkaDjFCt\", version: \"${{ steps.current-version.outputs.current_version }}\", factorio_version: \"${{ matrix.versions.factorio_version }}\", dependencies: [\"base\", \"? elevated-rails\", ${{ matrix.versions.recycler_dependency }} \"? quality\", \"? space-age\", (.results | sort_by(.name)[] | \"? \" + .name)], package: {ignore: [\"**/*.svg\", \"**/*.xcf\"]}}" mods.json > info.json
 
-      - name: Commit info.json
+      - id: commit-dependencies
+        name: Commit updated dependencies
         if: steps.download-mods-list.outputs.response == '200'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
@@ -53,3 +58,23 @@ jobs:
           branch: ${{ matrix.versions.branch }}
           file_pattern: |
             info.json
+
+      - id: bump-version
+        name: Bump version
+        if: steps.commit-dependencies.outputs.changes_detected == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        run: |
+          new_version="${{ matrix.versions.build_version }}$(date +%Y.%m%d.%H%M)"
+          sed -i "s/\"version\": \"\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)\"/\"version\": \"$new_version\"/" info.json
+          sed -i "s/0\.0\.0/$new_version/" changelog.txt
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+      - id: commit-version
+        name: Commit new version
+        if: steps.bump-version.outputs.new_version != ''
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "chore(release): v${{ steps.bump-version.outputs.new_version }}"
+          branch: ${{ matrix.versions.branch }}
+          file_pattern: |
+            info.json
+            changelog.txt
