@@ -1,0 +1,55 @@
+name: Continuous Integration & Deployment
+
+on:
+  push:
+    branches:
+      - "1.x"
+      #- "2.x"
+  #schedule:
+  #  - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ci-cd:
+    name: CI/CD
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        versions:
+          - branch: "1.x"
+            build_version: "1"
+            factorio_version: "2.0"
+            recycler_dependency: ''
+          #- branch: "2.x"
+          #  build_version: "2"
+          #  factorio_version: "2.1"
+          #  recycler_dependency: '"? recycler",'
+
+    steps:
+      - name: Checkout ${{ matrix.versions.branch }}
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.versions.branch }}
+
+      - id: download-mods-list
+        name: Download mods list
+        run: response=$(curl --silent --output mods.json --write-out "%{http_code}" "https://mods.factorio.com/api/mods?version=${{ matrix.versions.factorio_version }}&page_size=max"); echo "response=$response" >> $GITHUB_OUTPUT
+
+      - id: generate-mod-info
+        name: Generate info.json
+        if: steps.download-mods-list.outputs.response == '200'
+        run: |
+          jq "{name: \"khaosdata-extractor\", title: \"QuingKhaos' Data Extractor\", description: \"Extracts data from Factorio for further validation, mocking, testing and more.\", author: \"QuingKhaos\", homepage: \"https://discord.gg/SYmkaDjFCt\", version: (\"${{ matrix.versions.build_version }}\" + (now | strftime(\"%Y.%m%d.%H%M\"))), factorio_version: \"${{ matrix.versions.factorio_version }}\", dependencies: [\"base\", \"? elevated-rails\", ${{ matrix.versions.recycler_dependency }} \"? quality\", \"? space-age\", (.results | sort_by(.name)[] | \"? \" + .name)], package: {ignore: [\"**/*.svg\", \"**/*.xcf\"]}}" mods.json > info.json
+
+      - name: Commit info.json
+        if: steps.download-mods-list.outputs.response == '200'
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "chore(deps): update mods from mod portal"
+          branch: ${{ matrix.versions.branch }}
+          file_pattern: |
+            info.json
