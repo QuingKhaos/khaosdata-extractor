@@ -69,7 +69,7 @@ jobs:
         run: |
           new_version="${{ matrix.versions.build_version }}$(date +%Y.%m%d.%H%M)"
           sed -i "s/\"version\": \"\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)\"/\"version\": \"$new_version\"/" info.json
-          sed -i "s/0\.0\.0/$new_version/" changelog.txt
+          sed -i "s/0.0.0/$new_version/" changelog.txt
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
       - id: commit-version
