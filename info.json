@@ -4,7 +4,7 @@
   "description": "Extracts data from Factorio for further validation, mocking, testing and more.",
   "author": "QuingKhaos",
   "homepage": "https://discord.gg/SYmkaDjFCt",
-  "version": "12026.0722.0110",
+  "version": "12026.0722.0433",
   "factorio_version": "2.0",
   "dependencies": [
     "base",
