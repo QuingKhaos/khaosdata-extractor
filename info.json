@@ -2209,6 +2209,7 @@
     "? RailBlockHubRateCalcRecipes",
     "? RailBow",
     "? RailBow-Refracted",
+    "? RailLogisticsDaemon",
     "? RailLogisticsDispatcher",
     "? RailSignalPlanner",
     "? RailgunSpidertron",
