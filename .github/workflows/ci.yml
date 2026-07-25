@@ -5,8 +5,8 @@ on:
     branches:
       - "1.x"
       - "2.x"
-  schedule:
-    - cron: '*/5 * * * *'
+  #schedule:
+  #  - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
